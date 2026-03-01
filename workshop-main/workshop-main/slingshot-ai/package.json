@@ -1,0 +1,13 @@
+{
+  "name": "slingshot-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Slingshot AI - Startup growth intelligence dashboard frontend",
+  "scripts": {
+    "frontend": "python3 -m http.server 5173 --directory frontend",
+    "backend": "uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000 --app-dir ."
+  },
+  "dependencies": {
+    "chart.js": "^4.4.7"
+  }
+}
