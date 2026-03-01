@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slingshot AI | Growth Intelligence</title>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Custom Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#4A90E2',   // Trust Blue
+                            secondary: '#50E3C2', // Growth Teal
+                            accent: '#9B51E0',    // Neural Purple
+                            dark: '#1F1F23',      // Base Dark
+                            panel: 'rgba(31, 31, 35, 0.4)' // Glass Panel
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for Scrollbars & Glassmorphism Details -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="flex h-screen relative">
+
+    <!-- Background Elements -->
+    <div class="absolute inset-0 bg-mesh z-0 pointer-events-none"></div>
+    <div class="ambient-orb-1 z-0"></div>
+    <div class="ambient-orb-2 z-0"></div>
+
+    <!-- Sidebar -->
+    <aside class="relative z-10 w-20 md:w-64 border-r border-white/5 glass-panel p-4 md:p-6 flex flex-col transition-all">
+        <div class="flex items-center gap-3 mb-12">
+            <div class="p-2.5 rounded-xl bg-gradient-to-br from-brand-primary to-brand-accent shadow-lg shadow-brand-primary/20">
+                <i class="ph-bold ph-lightning text-white text-xl"></i>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight text-white hidden md:block">Slingshot<span class="text-brand-primary">.ai</span></h1>
+        </div>
+        
+        <nav class="flex-1 space-y-2">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="w-full flex items-center justify-center md:justify-start gap-3 p-3 rounded-xl bg-white/5 text-brand-primary transition-all shadow-inner">
+                <i class="ph-fill ph-target text-lg"></i>
+                <span class="hidden md:inline text-sm font-medium">Command Center</span>
+            </button>
+            <button onclick="document.getElementById('predictive-matrix').scrollIntoView({behavior: 'smooth'})" class="w-full flex items-center justify-center md:justify-start gap-3 p-3 rounded-xl text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-all">
+                <i class="ph-bold ph-chart-line-up text-lg"></i>
+                <span class="hidden md:inline text-sm font-medium">Predictive Matrix</span>
+            </button>
+        </nav>
+
+        <div class="mt-auto hidden md:block p-4 rounded-xl bg-white/5 border border-white/5">
+            <p class="text-[10px] text-gray-500 mb-2 uppercase font-bold tracking-widest">Model Engine</p>
+            <div class="flex items-center gap-2 text-sm font-semibold text-brand-secondary">
+                <div class="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-pulse shadow-[0_0_8px_rgba(80,227,194,0.8)]"></div>
+                Gemini 2.5 Active
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1 overflow-y-auto p-6 lg:p-10 scrollbar-hide">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div>
+                <h2 class="text-4xl font-semibold tracking-tight text-white mb-2">Growth Vector</h2>
+                <p class="text-sm font-medium uppercase tracking-widest text-brand-secondary">Weighted Volatility Analysis • INR Scale</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <input type="file" id="csvUpload" accept=".csv" class="hidden" />
+                <button onclick="document.getElementById('csvUpload').click()" class="flex items-center gap-2 px-4 py-2.5 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all text-sm font-medium text-gray-300">
+                    <i class="ph-bold ph-cloud-arrow-up text-brand-secondary text-lg"></i>
+                    <span class="hidden sm:inline">Inject Data</span>
+                </button>
+                <button onclick="generateExecutiveSummary()" class="group relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg overflow-hidden bg-gradient-to-r from-brand-primary to-brand-accent hover:scale-105 transition-transform">
+                    <i class="ph-bold ph-sparkle text-lg"></i> Synthesis Mode
+                </button>
+            </div>
+        </header>
+
+        <!-- Executive Summary Banner (Hidden by default) -->
+        <div id="summaryBanner" class="hidden mb-8 p-6 rounded-3xl glass-panel relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-brand-primary to-brand-accent"></div>
+            <div class="flex justify-between items-start mb-2 pl-3">
+                <span class="text-xs font-bold uppercase tracking-widest text-brand-primary">Neural Briefing</span>
+                <button onclick="handleTts()" class="p-1.5 rounded-full hover:bg-white/10 text-gray-400 transition-colors" id="ttsBtn">
+                    <i class="ph-bold ph-speaker-high text-lg"></i>
+                </button>
+            </div>
+            <p id="summaryText" class="text-lg font-light leading-relaxed pl-3 text-gray-200"></p>
+        </div>
+
+        <!-- Bento Grid Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="glass-panel p-6 rounded-3xl relative group hover:bg-white/5 transition-colors">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="p-3 bg-black/40 rounded-2xl shadow-inner border border-white/5"><i class="ph-bold ph-currency-inr text-brand-primary text-xl"></i></div>
+                    <span id="trendRev" class="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-black/40 px-2 py-1 rounded-full">+14% MoM</span>
+                </div>
+                <h4 id="statRunRate" class="text-3xl font-semibold text-white tracking-tight">₹0</h4>
+                <p class="text-xs font-medium text-gray-500 mt-2 tracking-wide uppercase">Current Run Rate</p>
+            </div>
+            
+            <div class="glass-panel p-6 rounded-3xl relative group hover:bg-white/5 transition-colors">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="p-3 bg-black/40 rounded-2xl shadow-inner border border-white/5"><i class="ph-bold ph-trend-up text-brand-accent text-xl"></i></div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-black/40 px-2 py-1 rounded-full">±12% Volatility</span>
+                </div>
+                <h4 id="statForecast" class="text-3xl font-semibold text-white tracking-tight">₹0</h4>
+                <p class="text-xs font-medium text-gray-500 mt-2 tracking-wide uppercase">Exp. 6M Forecast</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl relative group hover:bg-white/5 transition-colors">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="p-3 bg-black/40 rounded-2xl shadow-inner border border-white/5"><i class="ph-bold ph-heartbeat text-brand-secondary text-xl"></i></div>
+                    <span id="statStatus" class="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-black/40 px-2 py-1 rounded-full">Analyzing</span>
+                </div>
+                <h4 id="statScore" class="text-3xl font-semibold text-white tracking-tight">0</h4>
+                <p class="text-xs font-medium text-gray-500 mt-2 tracking-wide uppercase">Risk Adjusted Score</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl relative group hover:bg-white/5 transition-colors">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="p-3 bg-black/40 rounded-2xl shadow-inner border border-white/5"><i id="churnIcon" class="ph-bold ph-users-three text-gray-400 text-xl"></i></div>
+                    <span id="churnTrend" class="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-black/40 px-2 py-1 rounded-full">Stable</span>
+                </div>
+                <h4 id="statChurn" class="text-3xl font-semibold text-white tracking-tight">0%</h4>
+                <p class="text-xs font-medium text-gray-500 mt-2 tracking-wide uppercase">Calculated Churn</p>
+            </div>
+        </div>
+
+        <!-- Master Chart & Insights -->
+        <div id="predictive-matrix" class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[450px] h-auto">
+            <div class="lg:col-span-2 glass-panel rounded-3xl p-6 flex flex-col min-h-[400px] lg:min-h-0">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Probabilistic Trajectory</h3>
+                        <p class="text-xs text-gray-500 mt-1">Expected vector + 80% Confidence Zone (Teal area)</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-0 w-full relative" style="min-height: 300px;">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6 flex flex-col lg:h-full h-[400px] overflow-hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white flex items-center gap-2">Strategic Vectors</h3>
+                    <button onclick="generateDynamicInsights()" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all" id="refreshInsightsBtn">
+                        <i class="ph-bold ph-arrows-clockwise text-gray-400"></i>
+                    </button>
+                </div>
+                <div id="insightsContainer" class="flex-1 overflow-y-auto space-y-4 scrollbar-hide">
+                    <!-- Insights injected here -->
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 rounded-full bg-brand-primary"></div>
+                            <span class="text-sm font-semibold text-gray-200">Intelligence Ready</span>
+                        </div>
+                        <p class="text-xs text-gray-400 leading-relaxed">Awaiting your command to analyze the dimensional metrics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating AI Chat Widget -->
+    <div id="chatWidget" class="fixed bottom-8 right-8 z-50 transition-all duration-500 w-14 h-14">
+        <!-- Closed Button -->
+        <button id="chatToggleBtn" onclick="toggleChat()" class="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-primary/40 hover:scale-110 transition-transform bg-gradient-to-br from-brand-primary to-brand-accent absolute right-0 bottom-0 z-20">
+            <i id="chatIcon" class="ph-bold ph-chat-teardrop-text text-2xl"></i>
+        </button>
+
+        <!-- Open Panel -->
+        <div id="chatPanel" class="w-full h-full glass-panel border border-white/10 rounded-[2rem] shadow-2xl flex flex-col overflow-hidden opacity-0 pointer-events-none transition-all duration-300 absolute bottom-0 right-0 origin-bottom-right transform scale-95">
+            <div class="p-5 flex justify-between items-center bg-white/5 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <div id="aiStatusDot" class="w-2 h-2 rounded-full bg-brand-secondary shadow-[0_0_10px_rgba(80,227,194,0.8)]"></div>
+                    <span class="font-bold text-white text-sm">Gemini Terminal</span>
+                </div>
+                <button onclick="toggleChat()" class="text-gray-500 hover:text-white transition-colors"><i class="ph-bold ph-x"></i></button>
+            </div>
+            
+            <div id="chatMessages" class="flex-1 p-5 overflow-y-auto space-y-4 scrollbar-hide">
+                <div class="flex justify-start">
+                    <div class="max-w-[85%] p-4 rounded-2xl text-[13px] leading-relaxed bg-white/5 text-gray-300 rounded-bl-sm border border-white/5">
+                        System online. I have analyzed your volatility and growth bounds. What strategic vectors should we explore?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator (Hidden by default) -->
+            <div id="typingIndicator" class="hidden px-5 pb-2">
+                <div class="max-w-[85%] p-3 rounded-2xl bg-white/5 rounded-bl-sm border border-white/5 inline-block">
+                    <div class="dot-flashing ml-3"></div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-black/20">
+                <div class="relative flex items-center">
+                    <input type="text" id="chatInput" placeholder="Query the model..." class="w-full bg-black/40 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:border-brand-primary/50 text-white placeholder-gray-500 transition-colors" onkeypress="handleKeyPress(event)" />
+                    <button onclick="handleSendMessage()" class="absolute right-2 p-1.5 text-white rounded-lg transition-colors bg-brand-primary hover:bg-blue-500">
+                        <i class="ph-bold ph-paper-plane-right text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player for TTS -->
+    <audio id="ttsAudio" class="hidden"></audio>
+
+    <!-- Application Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
